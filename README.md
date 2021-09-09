@@ -1,2 +1,3 @@
 # nlp-implementation
-nlp 구현 도전
+
+공부하고 구현해보자.
