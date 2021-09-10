@@ -1,94 +1,82 @@
 """ reference : https://wikidocs.net/22660 """
 import numpy as np
+import pandas as pd
+from torch.nn.modules.sparse import Embedding
+from tqdm import tqdm
 import torch
 from torch import nn
-from torch._C import dtype
 import torch.nn.functional as F
 from make_dataset import sentence2dataset
+
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 class CBoW(nn.Module):
     """[summary]
     Args:
-        in_ftr ([int]): input size
-        out_ftr ([int]): output size
+        vocab ([int]): vocabulary size
         hids ([int]): hidden layer size
         window_size ([int]): sliding window size
     Param:
         V : Vocabulary size
-        in_weights, out_weights : random initialization based Gausian N(0,1)
+        embedding : lookup table
+        out_weights : random initialization based Gausian N(0,1)
     """
-    def __init__(self, in_ftr, out_ftr, hids, window_size):
+    def __init__(self, vocab, hids, window_size):
         super().__init__()
-        self.V = in_ftr
         self.hids = hids
-        self.in_weights = torch.randn(in_ftr, hids, requires_grad=True)
-        self.out_weights = torch.randn(hids, out_ftr, requires_grad=True)
         self.window_size = window_size
-        
+        self.V = vocab
+        self.embedding = nn.Embedding(num_embeddings=vocab, embedding_dim=hids)
+        self.out_weights = nn.Linear(hids, vocab, bias=False)
+
     
-    def forward(self, context_list):
-        """
-        Args:
-            context_list ([vector]): input vector list (one-hot vector)
-        """
-        # projection layer
-        v = [0.]*self.hids
-        v = torch.tensor(v, dtype=torch.float)
-        for vector in context_list:
-            index = -1
-            for i in range(len(vector)):
-                if vector[i]:
-                    index = i
-            loockup_table = self.in_weights[index]
-            v += loockup_table
-        v = v / (2 * self.window_size)
-        # output layer
-        y_hat = v @ self.out_weights
-        y_hat = y_hat.reshape(self.V, 1)
-        return F.softmax(y_hat, dim=1)
-    
-    def get_weights(self): # embedding = input weights
-        return self.in_weights
+    def forward(self, input):
+        out = sum(self.embedding(input)).view(1,-1).cuda()
+        out = out / (2 * self.window_size)
+        out = self.out_weights(out)
+        return F.softmax(out, dim=1)
 
 
 def main():
-    device = torch.device('cuda')
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    print(f"Using {device} device")
 
-    sentence = "a b c d e f g"
+    sentence = "I study math"
     words = sentence.strip().split(' ')
+    vocab_size = len(words)
+    window_size = 1
+    hidden_layer_size = 2
+
 
     word2idx = sentence2dataset.make_dict(words) # (vocab, index)
-    training_data = sentence2dataset.make_training_data(words, 2)
-
-    # one hot encoding
-    one_hot_encode = []
-    for word in words:
-        one_hot_encode.append(sentence2dataset.one_hot_encoding(word, word2idx))
+    training_data = sentence2dataset.make_training_data(words, window_size)
     
     
-    model = CBoW(in_ftr=len(words),out_ftr=len(words),hids=5,window_size=2).to(device)
+    model = CBoW(vocab=vocab_size, hids=hidden_layer_size, window_size=window_size).cuda()
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.2)
+    model.train()
     
-    epochs = 1
-    for epoch in range(epochs):
+    epochs = 500
+    for epoch in tqdm(range(epochs)):
         for i, batch in enumerate(training_data):
             context, target = batch
-            target = one_hot_encode[word2idx[target]]
-            data = []
-            for word in context:
-                data.append(one_hot_encode[word2idx[word]])
+            target = word2idx[target]
             
-            data = torch.tensor(data)
-            target = torch.LongTensor(target)
-            target = target.reshape(7,-1)
+            context = torch.tensor([word2idx[word] for word in context]).to(device)
+            target = torch.tensor([target], dtype=torch.long).to(device)
+
+            optimizer.zero_grad()
+            output = model(context)
             
-            output = model(data)
-            
-            
-            # CrossEntropyLoss 안에 log_softmax가 적용되어 있으므로 output에 따로 softmax 적용하지 않음
             loss = F.cross_entropy(output, target)
             loss.backward()
-            
-    # print(model.get_weights)
+            optimizer.step()
+
+
+    for param in model.parameters():
+        print(param)
 
 if __name__ == "__main__":
     main()
