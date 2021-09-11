@@ -1,16 +1,15 @@
-""" reference : https://wikidocs.net/22660 """
-import numpy as np
-import pandas as pd
-from torch.nn.modules.sparse import Embedding
+""" 
+    Reference : 
+        https://wikidocs.net/22660 
+    
+    Test Reference:
+        https://github.com/FraLotito/pytorch-continuous-bag-of-words
+"""
 from tqdm import tqdm
 import torch
 from torch import nn
 import torch.nn.functional as F
 from make_dataset import sentence2dataset
-
-from sklearn.decomposition import PCA
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 class CBoW(nn.Module):
     """[summary]
@@ -19,18 +18,19 @@ class CBoW(nn.Module):
         hids ([int]): hidden layer size
         window_size ([int]): sliding window size
     Param:
-        V : Vocabulary size
         embedding : lookup table
-        out_weights : random initialization based Gausian N(0,1)
+        out_weights : 
+    functions:
+        __init__ : initialization
+        forward : feedforward
+        word_vector : return word embedding vector
     """
     def __init__(self, vocab, hids, window_size):
         super().__init__()
         self.hids = hids
         self.window_size = window_size
-        self.V = vocab
         self.embedding = nn.Embedding(num_embeddings=vocab, embedding_dim=hids)
         self.out_weights = nn.Linear(hids, vocab, bias=False)
-
     
     def forward(self, input):
         out = sum(self.embedding(input)).view(1,-1)
@@ -38,13 +38,9 @@ class CBoW(nn.Module):
         out = self.out_weights(out)
         return F.log_softmax(out, dim=1)
 
-
     def word_vector(self, word, word2idx):
-        index = word2idx[word]
-        param = next(iter(self.out_weights.parameters()))
-        weights = param[index]
-        return weights
-                
+        word = torch.tensor(word2idx[word])
+        return self.embedding(word).view(1,-1)
 
 
 def main():
@@ -68,10 +64,8 @@ def main():
     window_size = 2
     hidden_layer_size = 64
 
-
     word2idx = sentence2dataset.make_dict(words) # (vocab, index)
     training_data = sentence2dataset.make_training_data(words, window_size)
-    
     
     model = CBoW(vocab=vocab_size, hids=hidden_layer_size, window_size=window_size).to(device)
     optimizer = torch.optim.SGD(model.parameters(), lr=0.2)
@@ -86,19 +80,13 @@ def main():
             context = torch.tensor([word2idx[word] for word in context]).to(device)
             target = torch.tensor([target], dtype=torch.long).to(device)
 
-            print_context = [words[idx] for idx in context]
-            print_target = words[target]
-            print(print_context, print_target)
-
             optimizer.zero_grad()
             output = model(context)
             
             loss = F.cross_entropy(output, target)
             loss.backward()
             optimizer.step()
-            
-    
-    
+
     # TESTING
     context = ['People', 'create', 'to', 'direct']
     context_vector = torch.tensor([word2idx[word] for word in context]).to(device)
@@ -106,9 +94,8 @@ def main():
     a = model(context_vector)
 
     #Print result
-    print(f'Context: {context}\n')
+    print(f'Context: {context}')
     print(f'Prediction: {words[torch.argmax(a[0]).item()]}')
-
 
 
 if __name__ == "__main__":
