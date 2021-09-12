@@ -64,7 +64,7 @@ def main():
     window_size = 2
     embedding_size = 64
 
-    word2idx = sentence2dataset.make_dict(words) # (vocab, index)
+    word2idx, idx2word = sentence2dataset.make_dict(words) # (vocab, index)
     training_data = sentence2dataset.make_training_data(words, window_size)
     
     model = CBoW(vocab=vocab_size, embedding_size=embedding_size, window_size=window_size).to(device)
@@ -95,7 +95,7 @@ def main():
 
     #Print result
     print(f'Context: {context}')
-    print(f'Prediction: {words[torch.argmax(a[0]).item()]}')
+    print(f'Prediction: {idx2word[torch.argmax(a[0]).item()]}')
 
 
 if __name__ == "__main__":

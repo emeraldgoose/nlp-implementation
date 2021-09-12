@@ -11,17 +11,19 @@ class sentence2dataset(torch.nn.Module):
         return vector
 
     def make_dict(words):
-        word2idx = {} # (vocab, index)
+        word2idx = {} # (word, index)
+        idx2word = {} # (index, word)
         for vocab in words:
             if vocab not in word2idx.keys():
                 word2idx[vocab] = len(word2idx)
-        return word2idx
+                idx2word[len(word2idx)] = vocab
+        return word2idx, idx2word
 
     def make_training_data(words, r): # [context_word_list, center_word]
         if r > len(words)//2: # err : out of range
             assert('r is over length of words')
         training_data = []
-        for i in range(len(words)):
+        for i in range(r, len(words)-r):
             target = words[i]
             context = []
             for k in range(1,r+1):
