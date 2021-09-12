@@ -3,14 +3,12 @@ import torch
 class sentence2dataset(torch.nn.Module):
     def __init__(self):
         super().__init__()
-    
-    
+
     def one_hot_encoding(word, word2idx):
         vector = [0] * len(word2idx)
         index = word2idx[word]
         vector[index] = 1
         return vector
-
 
     def make_dict(words):
         word2idx = {} # (vocab, index)
@@ -18,7 +16,6 @@ class sentence2dataset(torch.nn.Module):
             if vocab not in word2idx.keys():
                 word2idx[vocab] = len(word2idx)
         return word2idx
-
 
     def make_training_data(words, r): # [context_word_list, center_word]
         if r > len(words)//2: # err : out of range
