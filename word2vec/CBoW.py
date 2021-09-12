@@ -25,12 +25,12 @@ class CBoW(nn.Module):
         forward : feedforward
         word_vector : return word embedding vector
     """
-    def __init__(self, vocab, hids, window_size):
+    def __init__(self, vocab, embedding_size, window_size):
         super().__init__()
-        self.hids = hids
+        self.hids = embedding_size
         self.window_size = window_size
-        self.embedding = nn.Embedding(num_embeddings=vocab, embedding_dim=hids)
-        self.out_weights = nn.Linear(hids, vocab, bias=False)
+        self.embedding = nn.Embedding(num_embeddings=vocab, embedding_dim=embedding_size)
+        self.out_weights = nn.Linear(embedding_size, vocab, bias=False)
     
     def forward(self, input):
         out = sum(self.embedding(input)).view(1,-1)
@@ -62,12 +62,12 @@ def main():
             words.append(word)
     vocab_size = len(words)
     window_size = 2
-    hidden_layer_size = 64
+    embedding_size = 64
 
     word2idx = sentence2dataset.make_dict(words) # (vocab, index)
     training_data = sentence2dataset.make_training_data(words, window_size)
     
-    model = CBoW(vocab=vocab_size, hids=hidden_layer_size, window_size=window_size).to(device)
+    model = CBoW(vocab=vocab_size, embedding_size=embedding_size, window_size=window_size).to(device)
     optimizer = torch.optim.SGD(model.parameters(), lr=0.2)
     model.train()
     
