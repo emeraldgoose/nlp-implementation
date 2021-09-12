@@ -4,6 +4,10 @@
         https://reniew.github.io/22/
         https://www.kaggle.com/karthur10/skip-gram-implementation-with-pytorch-step-by-step
         https://velog.io/@jaeyun95/NLP%EC%8B%A4%EC%8A%B51.%EC%9E%90%EC%97%B0%EC%96%B4-%EC%B2%98%EB%A6%AC-%EA%B0%9C%EC%9A%94-%EB%8B%A8%EC%96%B4-%EC%9E%84%EB%B2%A0%EB%94%A9
+    
+    Test Reference:
+        https://github.com/FraLotito/pytorch-continuous-bag-of-words
+        https://velog.io/@jaeyun95/NLP%EC%8B%A4%EC%8A%B51.%EC%9E%90%EC%97%B0%EC%96%B4-%EC%B2%98%EB%A6%AC-%EA%B0%9C%EC%9A%94-%EB%8B%A8%EC%96%B4-%EC%9E%84%EB%B2%A0%EB%94%A9
 """
 from tqdm import tqdm
 import torch
@@ -12,6 +16,18 @@ import torch.nn.functional as F
 from make_dataset import sentence2dataset
 
 class SkipGram(nn.Module):
+    """[summary]
+    Args:
+        vocab ([int]): vocabulary size
+        embedding_size ([int]): embedding layer size
+        window_size ([int]): sliding window size -> context_size = 2 * window_size
+    Param:
+        in_weight : input layer weight matrix
+        out_weight : output layer weight matrix
+    functions:
+        __init__() : initialization
+        forward() : feedforward
+    """
     def __init__(self, vocab, embedding_size, window_size, device):
         super().__init__()
         self.window_size = window_size # context_size = 2 * window_size

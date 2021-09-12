@@ -15,15 +15,15 @@ class CBoW(nn.Module):
     """[summary]
     Args:
         vocab ([int]): vocabulary size
-        hids ([int]): hidden layer size
+        embedding_size ([int]): embedding layer size
         window_size ([int]): sliding window size
     Param:
         embedding : lookup table
         out_weights : 
     functions:
-        __init__ : initialization
-        forward : feedforward
-        word_vector : return word embedding vector
+        __init__() : initialization
+        forward() : feedforward
+        word_vector() : return word embedding vector
     """
     def __init__(self, vocab, embedding_size, window_size):
         super().__init__()
