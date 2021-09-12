@@ -4,6 +4,7 @@ class sentence2dataset(torch.nn.Module):
     def __init__(self):
         super().__init__()
     
+    
     def one_hot_encoding(word, word2idx):
         vector = [0] * len(word2idx)
         index = word2idx[word]
