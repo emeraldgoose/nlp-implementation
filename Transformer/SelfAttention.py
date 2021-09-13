@@ -9,12 +9,12 @@ import torch.nn.functional as F
 
 
 class SelfAttention(nn.Module):
-    def __init__(self, input_dimension, key_dimension):
+    def __init__(self, input_dimension, key_dimension, value_dimension):
         super().__init__()
         self.key_dimension = key_dimension
         self.query_weight = nn.Linear(in_features=input_dimension, out_features=key_dimension, bias=False)
         self.key_weight = nn.Linear(in_features=input_dimension, out_features=key_dimension, bias=False)
-        self.value_weight = nn.Linear(in_features=input_dimension, out_features=key_dimension, bias=False)
+        self.value_weight = nn.Linear(in_features=input_dimension, out_features=value_dimension, bias=False)
 
     def forward(self, inputs):
         querys = self.query_weight(inputs)
@@ -33,7 +33,7 @@ def main():
     input_dimension = 3
     input_vectors = np.array([np.random.randn(input_dimension) for _ in range(number_of_input_vector)])
     input_vectors = torch.tensor(input_vectors, dtype=torch.float)
-    model = SelfAttention(input_dimension=input_dimension, key_dimension=3)
+    model = SelfAttention(input_dimension=input_dimension, key_dimension=3, value_dimension=3)
 
     output = model(input_vectors)
     print(output)
