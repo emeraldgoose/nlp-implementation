@@ -15,9 +15,9 @@ class SelfAttention(nn.Module):
         self.query_weight = nn.Linear(in_features=input_dimension, out_features=key_dimension, bias=False)
         self.key_weight = nn.Linear(in_features=input_dimension, out_features=key_dimension, bias=False)
         self.value_weight = nn.Linear(in_features=input_dimension, out_features=key_dimension, bias=False)
-        torch.nn.init.normal_(self.query_weight.weight.data, a=0., b=1.)
-        torch.nn.init.normal_(self.key_weight.weight.data, a=0., b=1.)
-        torch.nn.init.normal_(self.value_weight.weight.data, a=0., b=1.)
+        torch.nn.init.normal_(self.query_weight.weight.data, mean=0., std=1.)
+        torch.nn.init.normal_(self.key_weight.weight.data, mean=0., std=1.)
+        torch.nn.init.normal_(self.value_weight.weight.data, mean=0., std=1.)
 
     def forward(self, inputs):
         querys = self.query_weight(inputs)
