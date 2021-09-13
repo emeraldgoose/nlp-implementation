@@ -28,7 +28,7 @@ class SkipGram(nn.Module):
         __init__() : initialization
         forward() : feedforward
     """
-    def __init__(self, vocab, embedding_size, window_size, device):
+    def __init__(self, vocab, embedding_size, window_size):
         super().__init__()
         self.window_size = window_size # context_size = 2 * window_size
         self.vocab = vocab
@@ -72,7 +72,7 @@ def main():
     training_data = sentence2dataset.make_training_data(words, window_size)
 
     
-    model = SkipGram(vocab=vocab_size, embedding_size=embedding_size, window_size=window_size, device=device).to(device)
+    model = SkipGram(vocab=vocab_size, embedding_size=embedding_size, window_size=window_size).to(device)
     criterion = nn.NLLLoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=0.2)
     model.train()
