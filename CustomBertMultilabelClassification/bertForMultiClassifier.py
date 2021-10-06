@@ -1,7 +1,6 @@
 import torch
 from torch.nn import CrossEntropyLoss
 from transformers import BertPreTrainedModel, BertModel
-from transformers import AutoConfig
 from transformers.modeling_outputs import SequenceClassifierOutput
 
 
