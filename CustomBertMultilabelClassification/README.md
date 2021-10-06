@@ -9,8 +9,8 @@ huggingface에서 제공하는 BertForSequenceClassification의 경우, 아래�
 (classifier): Linear(in_features=768, out_features=2, bias=True)
 ```
 
-binary classification의 경우 linear layer 하나로 task를 수행할 수 있지만 multi label에 대해서는 적용하기 힘들 수 있습니다.  
-그래서 classifier 역할을 하는 linear layer와 bert 사이에 GRU를 넣어 multi label에 대응할 수 있도록 구성했습니다.  
+binary classification의 경우 linear layer 하나로 task를 수행하는데 적합할 수 있지만 multiclass에 대해서는 적용하기 힘들 수 있습니다.  
+그래서 classifier 역할을 하는 linear layer와 bert 사이에 GRU를 넣어 multiclass에 대응할 수 있도록 구성했습니다.  
 
 ```
 (bert) BertModel()
@@ -19,4 +19,5 @@ binary classification의 경우 linear layer 하나로 task를 수행할 수 있
 (classifier): Linear(in_features=768, out_feature=30, bias=True)
 ```
 
+huggingface의 BertForSequenceClassifier 코드를 기반으로 하여 torch.nn.GRU를 추가했습니다.  
 loss function은 single label task에 적합한 CrossEntropyLoss()함수를 사용했습니다.  
