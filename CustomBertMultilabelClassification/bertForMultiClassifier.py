@@ -1,3 +1,8 @@
+"""
+    Reference:
+        https://huggingface.co/transformers/_modules/transformers/models/bert/modeling_bert.html#BertForSequenceClassification
+"""
+
 import torch
 from torch.nn import CrossEntropyLoss
 from transformers import BertPreTrainedModel, BertModel
@@ -38,7 +43,7 @@ class CustomBertForMultiClassifier(BertPreTrainedModel):
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
 
         outputs = self.bert(
-            input_ids,
+            input_ids=input_ids,
             attention_mask=attention_mask,
             token_type_ids=token_type_ids,
             position_ids=position_ids,
@@ -53,7 +58,7 @@ class CustomBertForMultiClassifier(BertPreTrainedModel):
 
         pooled_output = self.dropout(pooled_output)
 
-        pooled_output = pooled_output.view(-1,1,self.in_feature)
+        pooled_output = pooled_output.view(-1, 1, self.in_feature)
 
         pooled_output, _ = self.GRU(pooled_output, self.h0)
 
