@@ -20,4 +20,4 @@ binary classification의 경우 linear layer 하나로 task를 수행하는데 �
 ```
 
 huggingface의 BertForSequenceClassifier 코드를 기반으로 하여 torch.nn.GRU를 추가했습니다.  
-loss function은 single label task에 적합한 CrossEntropyLoss()함수를 사용했습니다.  
+loss function은 multi class classification에 적합한 CrossEntropyLoss()함수를 사용했습니다.  
